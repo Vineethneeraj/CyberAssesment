@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cybersecurity Threat Intelligence Dashboard</title>
+ <style>
+    body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  background-color: #2c2f36;
+  padding: 20px;
+  color: white;
+  text-align: center;
+}
+
+.search-section {
+  text-align: center;
+  margin-top: 30px;
+}
+
+input[type="text"] {
+  padding: 10px;
+  width: 300px;
+  margin-right: 10px;
+}
+
+button {
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.table-section {
+  margin: 40px auto;
+  width: 90%;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+table th, table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.add-button {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #2c2f36;
+  color: white;
+  font-size: 24px;
+  padding: 15px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+ </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Cybersecurity Threat Intelligence Dashboard</h1>
+  </div>
+
+  <div class="search-section">
+    <h2>Cybersecurity Threat Intelligence Dashboard</h2>
+    <input type="text" id="searchInput" placeholder="Search by IP, Domain, or Threat Level" />
+    <button onclick="searchData()">Search</button>
+  </div>
+
+  <div class="table-section">
+    <table id="threatTable">
+      <thead>
+        <tr>
+          <th>IP Address</th>
+          <th>Domain</th>
+          <th>URL</th>
+          <th>File Hash</th>
+          <th>Threat Level</th>
+        </tr>
+      </thead>
+      <tbody id="threatTableBody">
+        <!-- Data will be populated here -->
+      </tbody>
+    </table>
+    <p id="noDataMessage" style="text-align:center; display:none;">No data found</p>
+  </div>
+  <a href="/add_new">
+  <button class="add-button" >+</button>
+    </a>
+  <script>window.onload = () => {
+    fetchData();
+  };
+  
+  function fetchData(query = '') {
+    fetch(`/api/threats?q=${encodeURIComponent(query)}`)
+      .then(response => response.json())
+      .then(data => {
+        const tableBody = document.getElementById('threatTableBody');
+        const noDataMessage = document.getElementById('noDataMessage');
+        tableBody.innerHTML = '';
+  
+        if (data.length === 0) {
+          noDataMessage.style.display = 'block';
+        } else {
+          noDataMessage.style.display = 'none';
+          data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${row.ip}</td>
+              <td>${row.domain}</td>
+              <td>${row.url}</td>
+              <td>${row.file_hash}</td>
+              <td>${row.threat_level}</td>
+            `;
+            tableBody.appendChild(tr);
+          });
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching data:", error);
+      });
+  }
+  
+  function searchData() {
+    const query = document.getElementById('searchInput').value.trim();
+    fetchData(query);
+  }
+  </script>
+</body>
+</html>
